@@ -14,14 +14,9 @@ function Header() {
   }
   return (
     <Layout.Header style={headerStyles}>
-
-      
       <Space>
       <CurrentUser />
-      </Space>   
-
-
-
+      </Space> 
     </Layout.Header>
 
   )

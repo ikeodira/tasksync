@@ -2,52 +2,57 @@ import CustomAvatar from '@/components/custom-avator';
 import { COMPANIES_LIST_QUERY } from '@/graphql/queries';
 import { SearchOutlined } from '@ant-design/icons';
 import { CreateButton, DeleteButton, EditButton, FilterDropdown, List, useTable } from '@refinedev/antd'
-import { getDefaultFilter, useGo } from '@refinedev/core'
+import { HttpError, getDefaultFilter, useGo } from '@refinedev/core'
 import { Input, Space, Table } from 'antd';
 import { Text } from '@/components/text';
 import { Company } from '@/graphql/schema.types';
 import { currencyNumber } from '@/utilities';
+import { GetFieldsFromList } from '@refinedev/nestjs-query';
+import { CompaniesListQuery } from '@/graphql/types';
 
 
 export function CompanyList({ children }: React.PropsWithChildren) {
     const go = useGo();
 
-    const { tableProps, filters } = useTable({
-        resource: 'companies',
-        onSearch: (values) => {
-            return [
-                {
-                    field: 'name',
-                    operator: 'contains',
-                    value: values.name,
-                }
-            ]
-        },
-        pagination: {
-            pageSize: 12,
-        },
-        sorters: {
-            initial: [
-                {
-                    field: 'createdAt',
-                    order: 'desc',
-                }
-            ]
-        },
-        filters: {
-            initial: [
-                {
-                    field: 'name',
-                    operator: 'contains',
-                    value: undefined,
-                }
-            ]
+    const { tableProps, filters } = useTable<
+        GetFieldsFromList<CompaniesListQuery>,
+        HttpError,
+        GetFieldsFromList<CompaniesListQuery>>({
+            resource: 'companies',
+            onSearch: (values) => {
+                return [
+                    {
+                        field: 'name',
+                        operator: 'contains',
+                        value: values.name,
+                    }
+                ]
+            },
+            pagination: {
+                pageSize: 12,
+            },
+            sorters: {
+                initial: [
+                    {
+                        field: 'createdAt',
+                        order: 'desc',
+                    }
+                ]
+            },
+            filters: {
+                initial: [
+                    {
+                        field: 'name',
+                        operator: 'contains',
+                        value: undefined,
+                    }
+                ]
 
-        },
-        meta: {
-            gqlQuery: COMPANIES_LIST_QUERY,
-        }
-    })
+            },
+            meta: {
+                gqlQuery: COMPANIES_LIST_QUERY,
+            }
+        })
 
     return (
         <div >
@@ -78,7 +83,7 @@ export function CompanyList({ children }: React.PropsWithChildren) {
                                 <Input placeholder='Search Company' />
                             </FilterDropdown>
                         )}
-                        render={(value, record) => (
+                        render={(value, record: { name: string, avatarUrl: string }) => (
                             <Space>
                                 <CustomAvatar shape='square' name={record.name} src={record.avatarUrl} />
                                 <Text style={{ whiteSpace: 'nowrap' }}>{record.name}</Text>
@@ -86,7 +91,7 @@ export function CompanyList({ children }: React.PropsWithChildren) {
                         )}
                     />
                     <Table.Column
-                        dataIndex="totalRevenue" title="Open deals amount" render={(value, company) => (
+                        dataIndex="totalRevenue" title="Open deals amount" render={(value, company: any) => (
                             <Text>
                                 {currencyNumber(company?.dealsAggregate?.[0].sum?.value || 0)}
                             </Text>
